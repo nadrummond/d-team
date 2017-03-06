@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{11138D87-FDFE-48E4-9284-C36784A84BA9}</ProjectGuid>
+    <ProjectGuid>{1CA0A4BE-E555-48EC-8A62-884E8BFC2F81}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Umbraco.DTeam.Core</RootNamespace>
@@ -129,6 +129,7 @@
       <HintPath>..\packages\UmbracoCms.Core.7.5.10\lib\SQLCE4Umbraco.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SqlServerCe">
       <HintPath>..\packages\UmbracoCms.Core.7.5.10\lib\System.Data.SqlServerCe.dll</HintPath>
@@ -365,6 +366,12 @@
     <Content Include="Views\Partials\Forms\Fieldtypes\FieldType.Textfield.cshtml" />
     <Content Include="Views\Partials\Forms\Form.cshtml" />
     <Content Include="Views\Partials\Forms\Script.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Serialization\EpochDateTimeConverter.cs" />
+    <Compile Include="YouTrack\AgileSettings.cs" />
+    <Compile Include="YouTrack\Sprint.cs" />
+    <Compile Include="YouTrack\YouTrackClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
