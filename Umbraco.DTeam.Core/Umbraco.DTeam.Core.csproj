@@ -158,6 +158,9 @@
     <Reference Include="umbraco.DataLayer">
       <HintPath>..\packages\UmbracoCms.Core.7.5.10\lib\umbraco.DataLayer.dll</HintPath>
     </Reference>
+    <Reference Include="Umbraco.DTeam.ContentModels">
+      <HintPath>..\Umbraco.DTeam.Web\bin\Umbraco.DTeam.ContentModels.dll</HintPath>
+    </Reference>
     <Reference Include="umbraco.editorControls">
       <HintPath>..\packages\UmbracoCms.Core.7.5.10\lib\umbraco.editorControls.dll</HintPath>
     </Reference>
@@ -194,7 +197,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controllers\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Plugins\UmbracoForms\Assets\BaremetricsCalendar\public\css\application.css" />
@@ -368,8 +370,11 @@
     <Content Include="Views\Partials\Forms\Script.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\CurrentSprintModel.cs" />
     <Compile Include="Serialization\EpochDateTimeConverter.cs" />
     <Compile Include="YouTrack\AgileSettings.cs" />
+    <Compile Include="YouTrack\Issue.cs" />
+    <Compile Include="YouTrack\IssueList.cs" />
     <Compile Include="YouTrack\Sprint.cs" />
     <Compile Include="YouTrack\YouTrackClient.cs" />
   </ItemGroup>

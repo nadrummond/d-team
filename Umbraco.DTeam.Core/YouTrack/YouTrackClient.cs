@@ -12,8 +12,17 @@ namespace Umbraco.DTeam.Core.YouTrack
 {
     public class YouTrackClient
     {
+        private HttpClient _httpClient;
         private string _user;
         private string _password;
+
+        public YouTrackClient()
+        {
+            var baseAddress = new Uri("http://issues.umbraco.org");
+            var cookieContainer = new CookieContainer();
+            var handler = new HttpClientHandler { CookieContainer = cookieContainer };
+            _httpClient = new HttpClient(handler) { BaseAddress = baseAddress };
+        }
 
         private string User
         {
@@ -43,13 +52,40 @@ namespace Umbraco.DTeam.Core.YouTrack
             }
         }
 
+        public void Auth()
+        {
+            var loginRequest = new HttpRequestMessage(HttpMethod.Post, "http://issues.umbraco.org/rest/user/login");
+            loginRequest.Content = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("login", User),
+                new KeyValuePair<string, string>("password", Password),
+            });
+            var loginResponse = _httpClient.SendAsync(loginRequest).Result;
+            if (!loginResponse.IsSuccessStatusCode)
+            {
+                var text = loginResponse.Content.ReadAsStringAsync().Result;
+                throw new Exception("cannot login: " + text);
+            }
+        }
+
+        public List<Issue> GetProgress(int sprintId)
+        {
+            var url = "http://issues.umbraco.org/rest/issue?filter=Sprint:%20{{Sprint%20{0}}}&max=256&with=type&with=state&with=summary";
+            var request = new HttpRequestMessage(HttpMethod.Get, string.Format(url, sprintId));
+            var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
+            request.Headers.Accept.Add(mediaType);
+            var response = _httpClient.SendAsync(request).Result;
+            var json = response.Content.ReadAsStringAsync().Result;
+            var issues = JsonConvert.DeserializeObject<IssueList>(json);
+            return issues.Issues;
+        }
+
         public Sprint GetSprint(string sprintId)
         {
-            var httpClient = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Get, "http://issues.umbraco.org/rest/admin/agile/94-11/sprint/" + sprintId);
             var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
             request.Headers.Accept.Add(mediaType);
-            var response = httpClient.SendAsync(request).Result;
+            var response = _httpClient.SendAsync(request).Result;
             var json = response.Content.ReadAsStringAsync().Result;
             var sprint = JsonConvert.DeserializeObject<Sprint>(json);
             return sprint;
@@ -57,31 +93,10 @@ namespace Umbraco.DTeam.Core.YouTrack
 
         public AgileSettings GetSettings()
         {
-            var baseAddress = new Uri("http://issues.umbraco.org");
-            var cookieContainer = new CookieContainer();
-            var handler = new HttpClientHandler { CookieContainer = cookieContainer };
-            var httpClient = new HttpClient(handler) { BaseAddress = baseAddress };
-
-            var loginRequest = new HttpRequestMessage(HttpMethod.Post, "http://issues.umbraco.org/rest/user/login");
-            loginRequest.Content = new FormUrlEncodedContent(new []
-            {
-                new KeyValuePair<string, string>("login", User),
-                new KeyValuePair<string, string>("password", Password),
-            });
-            var loginResponse = httpClient.SendAsync(loginRequest).Result;
-            if (!loginResponse.IsSuccessStatusCode)
-            {
-                var text = loginResponse.Content.ReadAsStringAsync().Result;
-                throw new Exception("cannot login: " + text);
-            }
-
-            //var text = loginResponse.Content.ReadAsStringAsync().Result;
-            //throw new Exception(text);
-
             var request = new HttpRequestMessage(HttpMethod.Get, "http://issues.umbraco.org/rest/admin/agile/94-11");
             var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
             request.Headers.Accept.Add(mediaType);
-            var response = httpClient.SendAsync(request).Result;
+            var response = _httpClient.SendAsync(request).Result;
             var json = response.Content.ReadAsStringAsync().Result;
             //throw new Exception(json);
             var agileSettings = JsonConvert.DeserializeObject<AgileSettings>(json);
