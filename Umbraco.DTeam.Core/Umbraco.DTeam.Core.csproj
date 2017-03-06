@@ -122,6 +122,10 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Semver">
       <HintPath>..\packages\semver.1.1.2\lib\net45\Semver.dll</HintPath>
     </Reference>
@@ -370,6 +374,17 @@
     <Content Include="Views\Partials\Forms\Script.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppVeyor\AccessRight.cs" />
+    <Compile Include="AppVeyor\AccessRightDefinition.cs" />
+    <Compile Include="AppVeyor\AppVeyorService.cs" />
+    <Compile Include="AppVeyor\Build.cs" />
+    <Compile Include="AppVeyor\BuildRoot.cs" />
+    <Compile Include="AppVeyor\BuildsRoot.cs" />
+    <Compile Include="AppVeyor\Job.cs" />
+    <Compile Include="AppVeyor\NuGetFeed.cs" />
+    <Compile Include="AppVeyor\Project.cs" />
+    <Compile Include="AppVeyor\RoleAce.cs" />
+    <Compile Include="AppVeyor\SecurityDescriptor.cs" />
     <Compile Include="Models\CurrentSprintModel.cs" />
     <Compile Include="Serialization\EpochDateTimeConverter.cs" />
     <Compile Include="YouTrack\AgileSettings.cs" />
@@ -377,6 +392,10 @@
     <Compile Include="YouTrack\IssueList.cs" />
     <Compile Include="YouTrack\Sprint.cs" />
     <Compile Include="YouTrack\YouTrackClient.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
