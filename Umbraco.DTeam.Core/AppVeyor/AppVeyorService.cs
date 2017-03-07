@@ -157,6 +157,7 @@ namespace ZBuildMon.AppVeyor
             var result = new Dictionary<string, bool?>();
             foreach (var build in builds)
             {
+                //Umbraco.Core.Logging.LogHelper.Debug<AppVeyorService>("Build " + build.Branch + " " + build.Status + " " + build.Finished);
                 if (result.ContainsKey(build.Branch)) continue;
                 result[build.Branch] = build.Status == "success";
             }
