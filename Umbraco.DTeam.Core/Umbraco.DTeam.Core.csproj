@@ -141,6 +141,7 @@
     <Reference Include="System.Data.SqlServerCe.Entity">
       <HintPath>..\packages\UmbracoCms.Core.7.5.10\lib\System.Data.SqlServerCe.Entity.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Mvc">
       <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
     </Reference>
@@ -386,6 +387,7 @@
     <Compile Include="AppVeyor\RoleAce.cs" />
     <Compile Include="AppVeyor\SecurityDescriptor.cs" />
     <Compile Include="Models\CurrentSprintModel.cs" />
+    <Compile Include="Percolator.cs" />
     <Compile Include="Serialization\EpochDateTimeConverter.cs" />
     <Compile Include="YouTrack\AgileSettings.cs" />
     <Compile Include="YouTrack\Issue.cs" />
