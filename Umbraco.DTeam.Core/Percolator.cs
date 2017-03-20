@@ -87,6 +87,10 @@ namespace Umbraco.DTeam.Core
             if (model != null)
             {
                 model.Issues = client.GetProgress(model.Number);
+
+                var total = model.Issues.Count;
+                var count = model.Issues.Count(x => x.HasTag("Unscheduled"));
+                model.UnscheduledPercent = 100 * count / total;
             }
 
             return model;

@@ -23,6 +23,7 @@ namespace Umbraco.DTeam.Core.Models
         public SprintModel NextSprint { get; set; }
         public Dictionary<string, int> Progress { get; set; }
         public int Percent { get; set; }
+        public int UnscheduledPercent { get; set; }
     }
 
     public class HomeModel

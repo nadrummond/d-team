@@ -15,6 +15,9 @@ namespace Umbraco.DTeam.Core.YouTrack
         [JsonProperty("field")]
         public List<Field> Fields { get; set; }
 
+        [JsonProperty("tag")]
+        public List<Tag> Tags { get; set; }
+
         [JsonIgnore]
         public string Summary
         {
@@ -45,10 +48,24 @@ namespace Umbraco.DTeam.Core.YouTrack
             }
         }
 
+        public bool HasTag(string tag)
+        {
+            return Tags.Any(x => x.Name.InvariantEquals(tag));
+        }
+
         public class Field
         {
             public string Name { get; set; }
             public object Value { get; set; }
+        }
+
+        public class Tag
+        {
+            [JsonProperty("cssClass")]
+            public string CssClass { get; set; }
+
+            [JsonProperty("value")]
+            public string Name { get; set; }
         }
     }
 }
