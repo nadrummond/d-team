@@ -70,7 +70,7 @@ namespace Umbraco.DTeam.Core.YouTrack
 
         public List<Issue> GetProgress(int sprintId)
         {
-            var url = "http://issues.umbraco.org/rest/issue?filter=Sprint:%20{{Sprint%20{0}}}&max=256&with=type&with=state&with=summary&with=tag";
+            var url = "http://issues.umbraco.org/rest/issue?filter=Sprint:%20{{Sprint%20{0}}}&max=256&with=type&with=state&with=summary&with=tag&with=story%20points";
             var request = new HttpRequestMessage(HttpMethod.Get, string.Format(url, sprintId));
             var mediaType = new MediaTypeWithQualityHeaderValue("application/json");
             request.Headers.Accept.Add(mediaType);

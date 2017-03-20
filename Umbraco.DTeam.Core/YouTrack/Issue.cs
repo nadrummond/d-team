@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -45,6 +46,23 @@ namespace Umbraco.DTeam.Core.YouTrack
                 var a = value as JArray;
                 if (a != null) return a[0].ToString();
                 return value.ToString();
+            }
+        }
+
+        [JsonIgnore]
+        public double Points
+        {
+            get
+            {
+                const double medium = 3;
+
+                var field = Fields.FirstOrDefault(x => x.Name.InvariantEquals("story points"));
+                if (field == null) return medium;
+                var value = field.Value;
+                var a = value as JArray;
+                var s = a?[0].ToString() ?? value.ToString();
+                double points;
+                return double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out points) ?  points : medium;
             }
         }
 

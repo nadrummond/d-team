@@ -88,66 +88,89 @@ namespace Umbraco.DTeam.Core
             {
                 model.Issues = client.GetProgress(model.Number);
 
-                var total = model.Issues.Count;
-                var count = model.Issues.Count(x => x.HasTag("Unscheduled"));
-                model.UnscheduledPercent = 100 * count / total;
+                double unscheduled = 0;
+                double points = 0;
+                foreach (var issue in model.Issues)
+                {
+                    if (issue.Type.InvariantStartsWith("feature (planned)"))
+                        continue;
+
+                    points += issue.Points;
+                    if (issue.HasTag("Unscheduled"))
+                        unscheduled += issue.Points;
+                }
+                model.UnscheduledPoints = unscheduled;
+                model.TotalPoints = points;
             }
 
             return model;
         }
 
-        private void CalculateProgress(CurrentSprintModel model)
+        private static void CalculateProgress(CurrentSprintModel model)
         {
             if (model == null) return;
 
-            var issues = new Dictionary<string, int>();
-            var progress = new Dictionary<string, int>();
+            var progressPoints = new Dictionary<string, double>();
+            var progressPercent = new Dictionary<string, int>();
 
             foreach (var issue in model.Issues)
             {
-                if (issue.Type.InvariantStartsWith("feature"))
-                {
+                if (issue.Type.InvariantStartsWith("feature (planned)"))
                     continue;
-                }
-                int i;
+
+                double points;
                 var state = issue.State;
-                issues.TryGetValue(state, out i);
-                i += 1;
-                issues[state] = i;
+                progressPoints.TryGetValue(state, out points);
+                points += issue.Points;
+                progressPoints[state] = points;
             }
 
-            var total = 0;
+            var countPercent = 0;
+            double countPoints = 0;
             foreach (var state in new[] { "Open", "In Progress", "Review", "Reopened", "Fixed" })
             {
-                total += progress[state] = issues.ContainsKey(state) ? issues[state] * 100 / model.Issues.Count : 0;
+                if (!progressPoints.ContainsKey(state))
+                    progressPoints[state] = 0;
+                countPercent += progressPercent[state] = Convert.ToInt32(Math.Floor(progressPoints[state] * 100 / model.TotalPoints));
+                countPoints += progressPoints[state];
             }
-            progress["Other"] = 100 - total;
 
-            model.Progress = progress;
+            const int totalPercent = 100;
+            progressPercent["Other"] = totalPercent - countPercent;        
+            progressPoints["Other"] = model.TotalPoints - countPoints;
+
+            model.ProgressPercent = progressPercent;
+            model.ProgressPoints = progressPoints;
 
             model.Percent = Convert.ToInt32(Math.Floor(100 * (DateTime.Now - model.Start).TotalMilliseconds / (model.Finish - model.Start).TotalMilliseconds));
             if (model.Percent < 5) model.Percent = 5;
             if (model.Percent > 100) model.Percent = 100;
         }
 
+        private Dictionary<string, bool?> GetAppVeyor()
+        {
+            var appVeyor = new AppVeyorService();
+            return appVeyor.GetBuilds(true, 24, "dev-v7", "dev-v7.6", "dev-v8");
+        }
+
         // gets the home model
-        public HomeModel GetHomeModel(IEnumerable<ContentModels.Sprint> sprints)
+        public HomeModel GetHomeModel(IEnumerable<ContentModels.Sprint> sprints, bool caching = true)
         {
             var cache = ApplicationContext.Current.ApplicationCache.RuntimeCache;
 
-            var model = (CurrentSprintModel) cache.GetCacheItem(YoutrackCacheKey, GetYouTrack);
-            //var model = GetYouTrack();
+            var model = caching
+                ? (CurrentSprintModel) cache.GetCacheItem(YoutrackCacheKey, GetYouTrack, TimeSpan.FromMinutes(5))
+                : GetYouTrack();
+
             if (model == null) return null;
 
             model.Content = sprints.FirstOrDefault(x => x.SprintId == model.Number);
 
             CalculateProgress(model);
 
-            var builds = (Dictionary<string, bool?>) cache.GetCacheItem(AppVeyorCacheKey, () =>
-            {
-                var appVeyor = new AppVeyorService();
-                return appVeyor.GetBuilds(true, 24, "dev-v7", "dev-v7.6", "dev-v8");
-            }, TimeSpan.FromMinutes(5));
+            var builds = caching
+                ? (Dictionary<string, bool?>) cache.GetCacheItem(AppVeyorCacheKey, GetAppVeyor, TimeSpan.FromMinutes(5))
+                : GetAppVeyor();
 
             return new HomeModel
             {

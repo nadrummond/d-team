@@ -21,9 +21,13 @@ namespace Umbraco.DTeam.Core.Models
         public List<Issue> Issues { get; set; }
         public SprintModel PreviousSprint { get; set; }
         public SprintModel NextSprint { get; set; }
-        public Dictionary<string, int> Progress { get; set; }
+        public Dictionary<string, int> ProgressPercent { get; set; }
+        public Dictionary<string, double> ProgressPoints { get; set; }
+
         public int Percent { get; set; }
-        public int UnscheduledPercent { get; set; }
+
+        public double UnscheduledPoints { get; set; }
+        public double TotalPoints { get; set; }
     }
 
     public class HomeModel
