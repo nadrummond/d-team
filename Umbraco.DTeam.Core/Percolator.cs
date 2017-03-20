@@ -45,10 +45,10 @@ namespace Umbraco.DTeam.Core
 
             foreach (var sprint in allSprintIds.Select(x => client.GetSprint(x.Id)))
             {
-                var start = sprint.Start;
+                var start = sprint.Start.Date;
                 while (start.DayOfWeek != DayOfWeek.Monday)
                     start = start.AddDays(-1);
-                var finish = sprint.Finish;
+                var finish = sprint.Finish.AddHours(12).Date;
                 while (finish.DayOfWeek != DayOfWeek.Sunday)
                     finish = finish.AddDays(1);
 
@@ -64,23 +64,23 @@ namespace Umbraco.DTeam.Core
             {
                 Name = currentSprint.Version,
                 Number = GetSprintNumber(currentSprint),
-                Start = currentSprint.Start,
-                Finish = currentSprint.Finish,
+                Start = currentSprint.Start.Date,
+                Finish = currentSprint.Finish.AddHours(12).Date,
 
                 PreviousSprint = previousSprint == null ? null : new SprintModel
                 {
                     Name = previousSprint.Version,
                     Number = GetSprintNumber(previousSprint),
-                    Start = previousSprint.Start,
-                    Finish = previousSprint.Finish
+                    Start = previousSprint.Start.Date,
+                    Finish = previousSprint.Finish.AddHours(12).Date
                 },
 
                 NextSprint = nextSprint == null ? null : new SprintModel
                 {
                     Name = nextSprint.Version,
                     Number = GetSprintNumber(nextSprint),
-                    Start = nextSprint.Start,
-                    Finish = nextSprint.Finish
+                    Start = nextSprint.Start.Date,
+                    Finish = nextSprint.Finish.AddHours(12).Date
                 }
             };
 
@@ -131,8 +131,8 @@ namespace Umbraco.DTeam.Core
         {
             var cache = ApplicationContext.Current.ApplicationCache.RuntimeCache;
 
-            //var model = (CurrentSprintModel) cache.GetCacheItem(YoutrackCacheKey, GetYouTrack);
-            var model = GetYouTrack();
+            var model = (CurrentSprintModel) cache.GetCacheItem(YoutrackCacheKey, GetYouTrack);
+            //var model = GetYouTrack();
             if (model == null) return null;
 
             model.Content = sprints.FirstOrDefault(x => x.SprintId == model.Number);
