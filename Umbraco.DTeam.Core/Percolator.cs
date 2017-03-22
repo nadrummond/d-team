@@ -11,8 +11,7 @@ namespace Umbraco.DTeam.Core
     // name class randomly
     public class Percolator
     {
-        private const string YoutrackCacheKey = "DTeam.YouTrack";
-        private const string AppVeyorCacheKey = "DTeam.AppVeyor";
+        private const string HomeModelCacheKey = "DTeam.HomeModel";
 
         private int GetSprintNumber(Sprint sprint)
         {
@@ -85,69 +84,56 @@ namespace Umbraco.DTeam.Core
             };
 
             if (model != null)
-            {
                 model.Issues = client.GetProgress(model.Number);
-
-                double unscheduled = 0;
-                double points = 0;
-                foreach (var issue in model.Issues)
-                {
-                    if (issue.Type.InvariantStartsWith("feature (planned)"))
-                        continue;
-
-                    points += issue.Points;
-                    if (issue.HasTag("Unscheduled"))
-                        unscheduled += issue.Points;
-                }
-                model.UnscheduledPoints = unscheduled;
-                model.TotalPoints = points;
-            }
 
             return model;
         }
 
-        private static void CalculateProgress(CurrentSprintModel model)
+        private static SprintProgress GetProgress(int sprintId, List<Issue> issues, DateTime dateTime = default(DateTime))
         {
-            if (model == null) return;
+            if (dateTime == default(DateTime))
+                dateTime = DateTime.Now;
 
-            var progressPoints = new Dictionary<string, double>();
-            var progressPercent = new Dictionary<string, int>();
-
-            foreach (var issue in model.Issues)
+            var points = new Dictionary<string, double>();
+            double total = 0;
+            double unscheduled = 0;
+            foreach (var issue in issues)
             {
                 if (issue.Type.InvariantStartsWith("feature (planned)"))
                     continue;
 
-                double points;
                 var state = issue.State;
-                progressPoints.TryGetValue(state, out points);
-                points += issue.Points;
-                progressPoints[state] = points;
+                points.TryGetValue(state, out double statePoints);
+                statePoints += issue.Points;
+                points[state] = statePoints;
+
+                total += issue.Points;
+
+                if (issue.HasTag("Unscheduled"))
+                    unscheduled += issue.Points;
             }
 
-            var countPercent = 0;
-            double countPoints = 0;
+            var progress = new SprintProgress
+            {
+                SprintId = sprintId,
+                DateTime = dateTime,
+                Points = new Dictionary<string, double>(),
+                TotalPoints = total,
+                Unscheduled = unscheduled
+            };
+
             foreach (var state in new[] { "Open", "In Progress", "Review", "Reopened", "Fixed" })
             {
-                if (!progressPoints.ContainsKey(state))
-                    progressPoints[state] = 0;
-                countPercent += progressPercent[state] = Convert.ToInt32(Math.Floor(progressPoints[state] * 100 / model.TotalPoints));
-                countPoints += progressPoints[state];
+                points.TryGetValue(state, out double statePoints);
+                progress.Points[state] = statePoints;
             }
 
-            const int totalPercent = 100;
-            progressPercent["Other"] = totalPercent - countPercent;        
-            progressPoints["Other"] = model.TotalPoints - countPoints;
+            progress.Points["Other"] = total - progress.Points.Sum(x => x.Value);
 
-            model.ProgressPercent = progressPercent;
-            model.ProgressPoints = progressPoints;
-
-            model.Percent = Convert.ToInt32(Math.Floor(100 * (DateTime.Now - model.Start).TotalMilliseconds / (model.Finish - model.Start).TotalMilliseconds));
-            if (model.Percent < 5) model.Percent = 5;
-            if (model.Percent > 100) model.Percent = 100;
+            return progress;
         }
 
-        private Dictionary<string, bool?> GetAppVeyor()
+        private static Dictionary<string, bool?> GetAppVeyor()
         {
             var appVeyor = new AppVeyorService();
             return appVeyor.GetBuilds(true, 24, "dev-v7", "dev-v7.6", "dev-v8");
@@ -157,26 +143,58 @@ namespace Umbraco.DTeam.Core
         public HomeModel GetHomeModel(IEnumerable<ContentModels.Sprint> sprints, bool caching = true)
         {
             var cache = ApplicationContext.Current.ApplicationCache.RuntimeCache;
+            return caching
+                ? (HomeModel) cache.GetCacheItem(HomeModelCacheKey, () => GetHomeModelNoCache(sprints), TimeSpan.FromMinutes(5))
+                : GetHomeModelNoCache(sprints);
+        }
 
-            var model = caching
-                ? (CurrentSprintModel) cache.GetCacheItem(YoutrackCacheKey, GetYouTrack, TimeSpan.FromMinutes(5))
-                : GetYouTrack();
-
+        private HomeModel GetHomeModelNoCache(IEnumerable<ContentModels.Sprint> sprints)
+        {
+            var model = GetYouTrack();
             if (model == null) return null;
 
             model.Content = sprints.FirstOrDefault(x => x.SprintId == model.Number);
+            model.Progress = new List<SprintProgress>();
 
-            CalculateProgress(model);
+            var progress = GetProgress(model.Number, model.Issues);
 
-            var builds = caching
-                ? (Dictionary<string, bool?>) cache.GetCacheItem(AppVeyorCacheKey, GetAppVeyor, TimeSpan.FromMinutes(5))
-                : GetAppVeyor();
+            var history = SprintProgress.Get(model.Number).ToArray();
+
+            var d = model.Start;
+            var finish = model.NextSprint?.Start ?? model.Finish.AddDays(1);
+            while (d < finish)
+            {
+                var nd = d.AddHours(12);
+                if (progress.DateTime > d && progress.DateTime <= nd)
+                {
+                    model.Progress.Add(progress);
+                }
+                else
+                {
+                    var h = history.FirstOrDefault(x => x.DateTime > d && x.DateTime <= nd);
+                    model.Progress.Add(h);
+                }
+                d = nd;
+            }
+
+            model.TotalPoints = progress.TotalPoints;
+            model.UnscheduledPoints = progress.Unscheduled;
+
+            var builds = GetAppVeyor();
 
             return new HomeModel
             {
                 CurrentSprint = model,
                 Builds = builds
             };
+        }
+
+        public SprintProgress CaptureProgress()
+        {
+            var youTrack = GetYouTrack();
+            if (youTrack == null) return null;
+
+            return GetProgress(youTrack.Number, youTrack.Issues);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Umbraco.DTeam.Core.YouTrack
 {
     public class YouTrackClient
     {
-        private HttpClient _httpClient;
+        private readonly HttpClient _httpClient;
         private string _user;
         private string _password;
 

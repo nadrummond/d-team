@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Umbraco.DTeam.Web", "Umbraco.DTeam.Web\", "{11138D87-FDFE-48E4-9284-C36784A84BA9}"
 	ProjectSection(WebsiteProperties) = preProject
@@ -30,6 +30,8 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Umbraco.DTeam.Web", "Umbrac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.DTeam.Core", "Umbraco.DTeam.Core\Umbraco.DTeam.Core.csproj", "{1CA0A4BE-E555-48EC-8A62-884E8BFC2F81}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.DTeam.ApiClient", "Umbraco.DTeam.ApiClient\Umbraco.DTeam.ApiClient.csproj", "{D1512262-C860-4B52-81C0-EC8D8FC757B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,10 @@ Global
 		{1CA0A4BE-E555-48EC-8A62-884E8BFC2F81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CA0A4BE-E555-48EC-8A62-884E8BFC2F81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CA0A4BE-E555-48EC-8A62-884E8BFC2F81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1512262-C860-4B52-81C0-EC8D8FC757B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1512262-C860-4B52-81C0-EC8D8FC757B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1512262-C860-4B52-81C0-EC8D8FC757B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1512262-C860-4B52-81C0-EC8D8FC757B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
