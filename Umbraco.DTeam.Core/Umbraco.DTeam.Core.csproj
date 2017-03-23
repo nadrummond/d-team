@@ -408,6 +408,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Controllers\ApiController.cs" />
     <Compile Include="OwinStartup.cs" />
+    <Compile Include="Storage\AddSprintProgressTablePk.cs" />
     <Compile Include="Storage\CreateSprintProgressTable.cs" />
     <Compile Include="DTeamComponent.cs" />
     <Compile Include="Storage\UpdateSprintProgressTable1.cs" />

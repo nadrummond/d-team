@@ -4,6 +4,6 @@ namespace Umbraco.DTeam.Core
 {
     public static class Constants
     {
-        public static SemVersion Version = SemVersion.Parse("1.0.3");
+        public static SemVersion Version = SemVersion.Parse("1.0.4");
     }
 }

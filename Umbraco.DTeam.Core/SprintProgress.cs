@@ -22,21 +22,33 @@ namespace Umbraco.DTeam.Core
             public double Unscheduled { get; set; }
         }
 
+        private static UmbracoDatabase Database => ApplicationContext.Current.DatabaseContext.Database;
+
         public static void Save(SprintProgress progress)
         {
-            var dto = new SprintProgressDto
+            var sql = new Sql("SELECT sprintId, dateTime, jsonData FROM dSprintProgress WHERE sprintId=@sprintId AND dateTime=@dateTime", new { sprintId = progress.SprintId, dateTime = progress.DateTime });
+            var dto = Database.Fetch<SprintProgressDto>(sql).FirstOrDefault();
+            if (dto == null)
             {
-                SprintId = progress.SprintId,
-                DateTime = progress.DateTime,
-                JsonData = JsonConvert.SerializeObject(new JsonData { Points = progress.Points, Unscheduled = progress.Unscheduled })
-            };
-            ApplicationContext.Current.DatabaseContext.Database.Insert(dto);
+                dto = new SprintProgressDto
+                {
+                    SprintId = progress.SprintId,
+                    DateTime = progress.DateTime,
+                    JsonData = JsonConvert.SerializeObject(new JsonData { Points = progress.Points, Unscheduled = progress.Unscheduled })
+                };
+                Database.Insert(dto);
+            }
+            else
+            {
+                dto.JsonData = JsonConvert.SerializeObject(new JsonData { Points = progress.Points, Unscheduled = progress.Unscheduled });
+                Database.Update(dto);
+            }
         }
 
         public static IEnumerable<SprintProgress> Get(int sprintId)
         {
             var sql = new Sql("SELECT sprintId, dateTime, jsonData FROM dSprintProgress WHERE sprintId=@sprintId ORDER BY dateTime", new { sprintId });
-            var dtos = ApplicationContext.Current.DatabaseContext.Database.Fetch<SprintProgressDto>(sql);
+            var dtos = Database.Fetch<SprintProgressDto>(sql);
             return dtos.Select(x =>
             {
                 var jsonData = JsonConvert.DeserializeObject<JsonData>(x.JsonData);
