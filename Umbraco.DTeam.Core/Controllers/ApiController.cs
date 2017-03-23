@@ -22,6 +22,11 @@ namespace Umbraco.DTeam.Core.Controllers
             var perco = new Percolator();
             var progress = perco.CaptureProgress();
 
+            // progres.DateTime is 'now' as local datetime
+            // round to next 12hrs
+            // so will be 12:00:00 or 00:00:00, server time
+            // (everything we do is server-local time based)
+
             var captureDateTime = progress.DateTime.Date;
             captureDateTime = progress.DateTime.Hour < 12 
                 ? captureDateTime.AddHours(12) 
@@ -30,7 +35,7 @@ namespace Umbraco.DTeam.Core.Controllers
 
             SprintProgress.Save(progress);
 
-            return Request.CreateResponse(HttpStatusCode.OK, captureDateTime);
+            return Request.CreateResponse(HttpStatusCode.OK, captureDateTime.ToUniversalTime());
         }
     }
 }

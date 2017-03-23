@@ -41,7 +41,8 @@ namespace Umbraco.DTeam.ApiClient
             var formatters = new[] { formatter };
             var datetime = result.Content.ReadAsAsync<DateTime>(formatters, CancellationToken.None).Result;
 
-            Console.WriteLine(datetime);
+            //Console.WriteLine(datetime.ToLocalTime().ToString("yyyy/MM/dd HH:mm:ss K"));
+            Console.WriteLine(datetime.ToString("yyyy/MM/dd HH:mm:ss K"));
         }
     }
 }
