@@ -419,6 +419,7 @@
     <Compile Include="Serialization\EpochDateTimeConverter.cs" />
     <Compile Include="SprintProgress.cs" />
     <Compile Include="Storage\SprintProgressDto.cs" />
+    <Compile Include="Vsts\VstsClient.cs" />
     <Compile Include="YouTrack\AgileSettings.cs" />
     <Compile Include="YouTrack\Issue.cs" />
     <Compile Include="YouTrack\IssueList.cs" />
