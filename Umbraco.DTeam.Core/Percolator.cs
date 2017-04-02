@@ -50,6 +50,7 @@ namespace Umbraco.DTeam.Core
                 var finish = sprint.Finish.AddHours(12).Date;
                 while (finish.DayOfWeek != DayOfWeek.Sunday)
                     finish = finish.AddDays(1);
+                finish = finish.AddDays(1).AddSeconds(-1);
 
                 if (finish < now && (previousSprint == null || previousSprint.Start < start))
                     previousSprint = sprint;
