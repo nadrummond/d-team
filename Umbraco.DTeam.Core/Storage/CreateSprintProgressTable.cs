@@ -14,9 +14,6 @@ namespace Umbraco.DTeam.Core.Storage
             : base(syntax, logger)
         { }
 
-        // fixme change when running 7.6!
-        private static DatabaseContext Context => ApplicationContext.Current.DatabaseContext;
-
         public override void Up()
         {
             Logger.Debug<CreateSprintProgressTable>("Looking for tables.");
@@ -26,8 +23,8 @@ namespace Umbraco.DTeam.Core.Storage
 
             if (!dSprintProgressExists)
             {
-                // fixme this is 7.6!
-                //Create.Table<SprintProgressDto>();
+                Create.Table<SprintProgressDto>();
+                /*
                 Create.Table("dSprintProgress")
                     .WithColumn("sprintId").AsInt32().NotNullable()
                     .WithColumn("dateTime").AsDateTime().NotNullable()
@@ -38,6 +35,7 @@ namespace Umbraco.DTeam.Core.Storage
                     .OnColumn("dateTime").Ascending()
                     .WithOptions().Unique()
                     .WithOptions().NonClustered();
+                */
             }
 
             Logger.Debug<CreateSprintProgressTable>("Done.");

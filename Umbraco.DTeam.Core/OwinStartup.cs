@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Configuration;
-using Hangfire;
-using Hangfire.SqlServer;
+//using Hangfire;
+//using Hangfire.SqlServer;
 using Owin;
 using Umbraco.Web;
 

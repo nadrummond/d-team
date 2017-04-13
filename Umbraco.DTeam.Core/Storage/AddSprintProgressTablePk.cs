@@ -23,14 +23,6 @@ namespace Umbraco.DTeam.Core.Storage
             : base(sqlSyntax, logger)
         { }
 
-        public override void GetUpExpressions(IMigrationContext context)
-        {
-            Context = context;
-            base.GetUpExpressions(context);
-        }
-
-        private IMigrationContext Context { get; set; }
-
         public override void Up()
         {
             // defer, because we are making decisions based upon what's in the database
