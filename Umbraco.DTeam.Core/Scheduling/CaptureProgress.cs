@@ -1,22 +1,36 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Umbraco.Core;
+using Umbraco.Core.Logging;
 using Umbraco.Web.Scheduling;
 
 namespace Umbraco.DTeam.Core.Scheduling
 {
-    // this is how we should do it, however we'd have to wait for 7.6
-    // as the task scheduling plumbing (IBackgroundTask etc) is not public
-    // in 7.5 - what a shame
-    //
-    // also: need to create the runner & add the task, in component
     // also: need to complement the task so it's a recurring task
 
-    /*
     public class CaptureProgress : IBackgroundTask
     {
-        public Task RunAsync(CancellationToken token)
+        private readonly BackgroundTaskRunner<CaptureProgress> _runner;
+
+        public CaptureProgress(BackgroundTaskRunner<CaptureProgress> runner)
         {
+            _runner = runner;
+        }
+
+        public async Task RunAsync(CancellationToken token)
+        {
+            // first wait
+            // then run...
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
+            }
+            catch (TaskCanceledException)
+            {
+                return;
+            }
+
             var perco = new Percolator();
             var progress = perco.CaptureProgress(); // fixme - this should be async
 
@@ -33,8 +47,23 @@ namespace Umbraco.DTeam.Core.Scheduling
 
             SprintProgress.Save(progress);
 
-            return Task.CompletedTask;
+            Logger.Info<CaptureProgress>($"Capture Progress {captureDateTime}.");
+
+            // then wait for 10 minutes and re-schedule
+            // if the site goes down this will be cancelled
+            // fixme - ugly but latched tasks are core-internal
+            try
+            {
+                await Task.Delay(TimeSpan.FromMinutes(10), token).ConfigureAwait(false);
+            }
+            catch (TaskCanceledException)
+            {
+                return;
+            }
+            _runner.TryAdd(new CaptureProgress(_runner)); // fixme then why can't we loop on 1 task?
         }
+
+        private static ILogger Logger => ApplicationContext.Current.ProfilingLogger.Logger;
 
         public bool IsAsync => true;
 
@@ -42,6 +71,8 @@ namespace Umbraco.DTeam.Core.Scheduling
         {
             throw new InvalidOperationException("This task is async.");
         }
+
+        public void Dispose()
+        { }
     }
-    */
 }
