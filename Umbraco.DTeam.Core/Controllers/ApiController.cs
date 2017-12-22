@@ -19,7 +19,7 @@ namespace Umbraco.DTeam.Core.Controllers
         [HttpPost]
         public HttpResponseMessage CaptureProgress()
         {
-            var perco = new Percolator();
+            var perco = new Percolator(ApplicationContext.ApplicationCache.RuntimeCache);
             var progress = perco.CaptureProgress();
 
             // progres.DateTime is 'now' as local datetime

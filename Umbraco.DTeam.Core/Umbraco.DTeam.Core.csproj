@@ -260,6 +260,7 @@
     <Compile Include="Auth\UriExtensions.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Controllers\ApiController.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="GitHub\GitHubClient.cs" />
     <Compile Include="GitHub\GitHubSearchResult.cs" />
     <Compile Include="OwinStartup.cs" />

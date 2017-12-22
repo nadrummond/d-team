@@ -31,7 +31,7 @@ namespace Umbraco.DTeam.Core.Scheduling
                 return;
             }
 
-            var perco = new Percolator();
+            var perco = new Percolator(ApplicationContext.Current.ApplicationCache.RuntimeCache);
             var progress = perco.CaptureProgress(); // fixme - this should be async
 
             // progres.DateTime is 'now' as local datetime
