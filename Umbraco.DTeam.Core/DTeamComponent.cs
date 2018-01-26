@@ -9,7 +9,7 @@ namespace Umbraco.DTeam.Core
 {
     public class DTeamComponent : ApplicationEventHandler
     {
-        private BackgroundTaskRunner<CaptureProgress> _runner;
+        private BackgroundTaskRunner<IBackgroundTask> _runner;
 
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
@@ -22,7 +22,9 @@ namespace Umbraco.DTeam.Core
                 args.AppBuilder.ConfigureBearerTokenAuthentication();
             };
 
-            _runner = new BackgroundTaskRunner<CaptureProgress>(applicationContext.ProfilingLogger.Logger);
+            // somehow if we restrict ourselves to BackgroundTaskRunner<CaptureProgress> the RecurringTaskBase
+            // constructor is not happy - probably some generic variance issue in Core - ok with IBackgroundTask
+            _runner = new BackgroundTaskRunner<IBackgroundTask>("CaptureProgress", applicationContext.ProfilingLogger.Logger);
             _runner.TryAdd(new CaptureProgress(_runner));
         }
     }

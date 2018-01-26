@@ -23,22 +23,41 @@ namespace Umbraco.DTeam.Core.GitHub
             _client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Mozilla", "5.0"));
         }
 
+        private GithubSearchResult _githubSearchResult;
+        private bool? _available;
+
+        public bool IsAvailable
+        {
+            get
+            {
+                if (_available.HasValue) return _available.Value;
+
+                var openPullRequestUrl = "search/issues?q=is:pr+repo:umbraco/umbraco-cms+state:open";
+                var githubSearchResult = new GithubSearchResult()
+                {
+                    TotalCount = -1
+                };
+                try
+                {
+                    
+                    _githubSearchResult = JsonConvert.DeserializeObject<GithubSearchResult>(_client.GetAsync(openPullRequestUrl).Result.Content.ReadAsStringAsync().Result);
+                    _available = true;
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.WarnWithException<GitHubClient>("Error while fetching PR count from Github via url {0}", ex, (Func<object>) (() => openPullRequestUrl));
+                    _available = true;
+                }
+                return _available.Value;
+            }
+        }
+
         public GithubSearchResult GetNumberOfOpenPullRequests()
         {
-            var openPullRequestUrl = "search/issues?q=is:pr+repo:umbraco/umbraco-cms+state:open";
-            var githubSearchResult = new GithubSearchResult()
-            {
-                TotalCount = -1
-            };
-            try
-            {
-                githubSearchResult = JsonConvert.DeserializeObject<GithubSearchResult>(_client.GetAsync(openPullRequestUrl).Result.Content.ReadAsStringAsync().Result);
-            }
-            catch (Exception ex)
-            {
-                LogHelper.WarnWithException<GitHubClient>("Error while fetching PR count from Github via url {0}", ex, (Func<object>) (() => openPullRequestUrl));
-            }
-            return githubSearchResult;
+            if (!_available.HasValue)
+                _available = IsAvailable;
+
+            return _githubSearchResult;
         }
     }
 }

@@ -207,7 +207,8 @@ namespace Umbraco.DTeam.Core
             var model = GetYouTrack(sprintNumber);
             if (model == null) return null;
 
-            sprintNumber = (sprintNumber == int.MinValue ? model.Number : sprintNumber);
+            var isCurrentSprint = sprintNumber == int.MinValue;
+            if (isCurrentSprint) sprintNumber = model.Number;
 
             model.Content = sprints.FirstOrDefault(x => x.SprintId == sprintNumber);
 
@@ -232,7 +233,7 @@ namespace Umbraco.DTeam.Core
 
             model.Progress = new List<SprintProgress>();
 
-            var finish = model.NextSprint?.Start ?? model.Finish.AddDays(1);
+            var finish = isCurrentSprint ? DateTime.Now : model.NextSprint?.Start ?? model.Finish.AddDays(1);
 
             var progress = GetProgress(sprintNumber, model.Issues, finish);
 
@@ -255,6 +256,17 @@ namespace Umbraco.DTeam.Core
 
                 }
                 d = nd;
+            }
+
+            if (isCurrentSprint)
+            {
+                finish = model.NextSprint?.Start ?? model.Finish.AddDays(1);
+                while (d < finish)
+                {
+                    var nd = d.AddHours(12);
+                    model.Progress.Add(null);
+                    d = nd;
+                }
             }
 
             model.TotalPoints = progress.TotalPoints;
